@@ -1,0 +1,5 @@
+#!/bin/bash    
+
+eval sbt clean compile coverage test coverageReport
+
+google-chrome "./target/scala-2.11/scoverage-report/index.html"

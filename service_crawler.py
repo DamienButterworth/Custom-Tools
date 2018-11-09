@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.6
 
+#requires tkinter and graphviz
+
 import json
 import os
 import shutil

@@ -15,8 +15,9 @@ def git(*args):
 
 
 def clone():
-    for repo in repo_names:
-        if not (os.path.exists(os.path.join(path, repo))):
-            git("clone", "git@github.com:/" + repo_org_name + "/" + repo + ".git")
-        else:
-            print("Folder already exists")
+    if len(repo_names) > 0:
+        for repo in repo_names:
+            if not (os.path.exists(os.path.join(path, repo))):
+                git("clone", "git@github.com:/" + repo_org_name + "/" + repo + ".git")
+            else:
+                print("Folder already exists")

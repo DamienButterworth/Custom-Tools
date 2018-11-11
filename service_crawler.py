@@ -26,15 +26,15 @@ service_manager_config_location = "/home/damien/service-manager-config/services.
 # patchwork
 # osage
 
-
 github_org = ""
+repo_list = []
 
-repo_list = [""]
-
-download_repos.repo_names = repo_list
-download_repos.repo_org_name = github_org
-
-download_repos.clone()
+# for argument in sys.argv:
+#    print(argument)
+#    if argument is "-c" or "--clone":
+#        download_repos.repo_names = repo_list
+#        download_repos.repo_org_name = github_org
+#        download_repos.clone()
 
 graph_type = "\"neato\";"
 
@@ -52,15 +52,6 @@ if os.path.exists('dependencyTreeTempDirectory'):
     shutil.rmtree('dependencyTreeTempDirectory')
 
 os.mkdir('dependencyTreeTempDirectory')
-
-
-def check_ports_exists(reponame, port):
-    file_path = os.path.join(directory, reponame + "/conf/application.conf")
-    with open(file_path) as f:
-        for line in f:
-            if str(port) in line:
-                print(reponame)
-                print(line)
 
 
 def get_micro_service_files():
@@ -81,18 +72,22 @@ def get_services():
             with open(fpath) as f:
                 lines = f.readlines()
                 for line in lines:
-                    if "name =" in line:
+                    if "name = \"" in line:
                         file_name.replace("-microservice.scala.git", "")
-                        check_ports_exists(service_name, check_outgoing_calls(line.split('"')[1::2][0]))
+                        check_outgoing_calls(line.split('"')[1::2][0])
             if len(port_list) > 0:
-                print(port_list)
                 for x in service_list:
-                    print(service_list)
                     t = x.split("/")[1].replace(".git", "")
-                    print(t)
-                    graphviz_file.write(
-                        "\"" + file_name.replace("-microservice.scala",
-                                                 "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
+
+                    if len(sys.argv) > 1:
+                        if str(sys.argv[1]) in t:
+                            graphviz_file.write(
+                                "\"" + file_name.replace("-microservice.scala",
+                                                         "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
+                    else:
+                        graphviz_file.write(
+                            "\"" + file_name.replace("-microservice.scala",
+                                                     "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
             port_list.clear()
             service_list.clear()
 

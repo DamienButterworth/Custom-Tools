@@ -1,7 +1,8 @@
 #!/usr/bin/env python3.6
 
-#requires tkinter and graphviz
+# requires tkinter and graphviz
 
+import download_repos
 import json
 import os
 import shutil
@@ -9,21 +10,31 @@ from shutil import copyfile
 from tkinter import *
 
 port_list = []
-service_list = []
+service_list = set()
 
 directory = os.getcwd()
 
 service_manager_config_location = "/home/damien/service-manager-config/services.json"
 
-#graph types
-#dot
-#neato
-#twopi
-#circo
-#fdp
-#sfdp
-#patchwork
-#osage
+# graph types
+# dot
+# neato
+# twopi
+# circo
+# fdp
+# sfdp
+# patchwork
+# osage
+
+
+github_org = ""
+
+repo_list = [""]
+
+download_repos.repo_names = repo_list
+download_repos.repo_org_name = github_org
+
+download_repos.clone()
 
 graph_type = "\"neato\";"
 
@@ -35,7 +46,7 @@ graphviz_file = open("graphviz.dot", "w+")
 graphviz_file.write("digraph sample {" + "\n" + "")
 graphviz_file.write(
     "graph [pad=\"0.5\", nodesep=\"20\", ranksep=\"4\"]; layout=" + graph_type + "splines=\"true\"; overlap=\"false\"; "
-    "size=\"500000,500000\"" + "\n")
+                                                                                 "size=\"500000,500000\"" + "\n")
 
 if os.path.exists('dependencyTreeTempDirectory'):
     shutil.rmtree('dependencyTreeTempDirectory')
@@ -74,15 +85,14 @@ def get_services():
                         file_name.replace("-microservice.scala.git", "")
                         check_ports_exists(service_name, check_outgoing_calls(line.split('"')[1::2][0]))
             if len(port_list) > 0:
+                print(port_list)
                 for x in service_list:
+                    print(service_list)
                     t = x.split("/")[1].replace(".git", "")
-                    if len(sys.argv) > 1:
-                        if str(sys.argv[1]) in t:
-                            graphviz_file.write("\"" + file_name.replace("-microservice.scala",
-                                                                    "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
-                    else:
-                        graphviz_file.write(
-                            "\"" + file_name.replace("-microservice.scala", "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
+                    print(t)
+                    graphviz_file.write(
+                        "\"" + file_name.replace("-microservice.scala",
+                                                 "") + "\"" + " -> " + "\"" + t + "\"" + "\n")
             port_list.clear()
             service_list.clear()
 
@@ -101,13 +111,14 @@ def check_outgoing_calls(service_manager_name):
                     if y.upper() == "SOURCES":
                         for t in services_json[x][y]:
                             if t.upper() == "REPO":
-                                service_list.append(str(services_json[x][y][t]))
+                                service_list.add(str(services_json[x][y][t]))
 
 
 get_micro_service_files()
 get_services()
 
 os.chdir(directory)
+
 os.system("chmod +777 graphviz.dot")
 
 if os.path.isfile("image.png"):
